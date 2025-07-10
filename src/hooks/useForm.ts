@@ -1,13 +1,27 @@
 import { useState, type ChangeEvent } from "react";
 
 type UseFormArgs = {
-  initialValues: {
-    [key: string]: any;
-  };
-  validations: {
-    [key: string]: (val: any) => string;
-  };
-  onSubmit: (value: any) => any;
+  initialValues: Record<string, string>;
+  validations: Record<string, (val: string) => string>;
+  onSubmit: (value: Record<string, string>) => void;
+};
+
+
+const checkAndExtractErrors = (
+  values: Record<string, string>,
+  validations: Record<string, (val: string) => string>
+) => {
+  const newErr: any = {};
+  const newDirty: { [key: string]: boolean } = {};
+
+  for (const [name, value] of Object.entries(values)) {
+    newDirty[name] = true;
+    if (validations[name]) {
+      newErr[name] = validations[name](value);
+    }
+  }
+
+  return { newErr, newDirty };
 };
 
 const useForms = ({ initialValues, validations, onSubmit }: UseFormArgs) => {
@@ -29,15 +43,7 @@ const useForms = ({ initialValues, validations, onSubmit }: UseFormArgs) => {
   };
 
   const handleSubmit = () => {
-    const newErr: any = {};
-    const newDirty: { [key: string]: boolean } = {};
-
-    for (const [name, value] of Object.entries(values)) {
-      newDirty[name] = true;
-      if (validations[name]) {
-        newErr[name] = validations[name](value);
-      }
-    }
+    const { newErr, newDirty } = checkAndExtractErrors(values, validations);
     setErrors(newErr);
     setDirty((prev) => ({ ...prev, ...newDirty }));
     if (Object.entries(newErr).find((a) => a[1] !== "")) return;
@@ -52,5 +58,6 @@ const useForms = ({ initialValues, validations, onSubmit }: UseFormArgs) => {
     handleSubmit,
   };
 };
+
 
 export default useForms;
