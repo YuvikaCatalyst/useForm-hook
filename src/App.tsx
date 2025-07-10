@@ -1,35 +1,30 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import useForms from "hooks/useForm";
+import Form from "./components/Form";
 
-function App() {
-  const [count, setCount] = useState(0)
+const App = () => {
+  const { values, errors, dirty, handleChange, handleSubmit } = useForms({
+    initialValues: {
+      name: "",
+      email: "",
+    },
+    validations: {
+      name: (val) => (val.trim() === "" ? "Name is required" : ""),
+      email: (val) => (val.includes("@") ? "" : "Invalid email address"),
+    },
+    onSubmit: (formValues) => {
+      alert(`Form submitted successfully with values: ${JSON.stringify(formValues)}`);
+    },
+  });
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    <Form
+      values={values}
+      errors={errors}
+      dirty={dirty}
+      handleChange={handleChange}
+      handleSubmit={handleSubmit}
+    />
+  );
+};
 
-export default App
+export default App;
